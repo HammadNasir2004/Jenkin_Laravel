@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Contact Form</title>
+    <title>Welcome - Hammad Nasir FA22-BSE-097</title>
     <style>
         :root {
             --bg: #eef4ff;
@@ -13,10 +13,6 @@
             --primary: #0f62fe;
             --primary-dark: #0b4ccd;
             --line: #d8e2f2;
-            --success-bg: #e7f8ee;
-            --success-text: #146c3c;
-            --error-bg: #ffeaea;
-            --error-text: #9b1c1c;
             --shadow: 0 20px 45px rgba(16, 34, 62, 0.12);
         }
 
@@ -33,260 +29,133 @@
                 radial-gradient(circle at 90% 20%, #c7d2fe 0%, transparent 35%),
                 var(--bg);
             min-height: 100vh;
-            padding: 32px 16px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 20px;
         }
 
-        .layout {
-            max-width: 1080px;
-            margin: 0 auto;
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 22px;
-        }
-
-        .page-title {
-            max-width: 1080px;
-            margin: 0 auto 14px;
+        .hero {
             text-align: center;
-            font-size: 26px;
+            max-width: 600px;
+            margin-bottom: 40px;
+        }
+
+        .hero-title {
+            font-size: 48px;
             font-weight: 700;
-            letter-spacing: 0.4px;
+            margin-bottom: 16px;
             color: #0b2a5a;
+            line-height: 1.2;
         }
 
-        .card {
-            background: var(--card);
-            border: 1px solid var(--line);
-            border-radius: 18px;
-            box-shadow: var(--shadow);
-            overflow: hidden;
-        }
-
-        .card-head {
-            padding: 22px 24px;
-            border-bottom: 1px solid var(--line);
-            background: linear-gradient(100deg, #eff6ff, #f8faff);
-        }
-
-        .card-head h1,
-        .card-head h2 {
-            margin: 0;
-            font-size: 24px;
-            letter-spacing: 0.3px;
-        }
-
-        .card-head p {
-            margin: 8px 0 0;
+        .hero-subtitle {
+            font-size: 20px;
             color: var(--muted);
-            font-size: 14px;
+            margin-bottom: 32px;
+            line-height: 1.5;
         }
 
-        .card-body {
-            padding: 24px;
-        }
-
-        .field {
-            margin-bottom: 14px;
-        }
-
-        label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: 600;
-        }
-
-        input,
-        textarea {
-            width: 100%;
-            border: 1px solid #c9d6ea;
-            border-radius: 11px;
-            padding: 12px 13px;
-            font-size: 14px;
-            outline: none;
-            transition: border-color .2s, box-shadow .2s;
-            background: #fbfdff;
-        }
-
-        input:focus,
-        textarea:focus {
-            border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(15, 98, 254, 0.14);
-        }
-
-        textarea {
-            min-height: 120px;
-            resize: vertical;
+        .auth-buttons {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            flex-wrap: wrap;
         }
 
         .btn {
             border: 0;
             border-radius: 12px;
-            background: linear-gradient(180deg, #1c6dff, #0f62fe);
-            color: #fff;
             font-weight: 600;
-            font-size: 14px;
-            padding: 12px 18px;
+            font-size: 16px;
+            padding: 16px 32px;
             cursor: pointer;
             transition: transform .16s ease, background .2s;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+            min-width: 140px;
         }
 
-        .btn:hover {
+        .btn-primary {
+            background: linear-gradient(180deg, #1c6dff, #0f62fe);
+            color: #fff;
+        }
+
+        .btn-primary:hover {
             background: linear-gradient(180deg, #1559dd, #0b4ccd);
             transform: translateY(-1px);
         }
 
-        .alert,
-        .errors {
-            border-radius: 12px;
-            padding: 12px 14px;
-            margin-bottom: 14px;
-            font-size: 14px;
+        .btn-secondary {
+            background: #ffffff;
+            color: var(--primary);
+            border: 2px solid var(--primary);
         }
 
-        .alert {
-            background: var(--success-bg);
-            color: var(--success-text);
-            border: 1px solid #b7ebc9;
+        .btn-secondary:hover {
+            background: var(--primary);
+            color: #fff;
+            transform: translateY(-1px);
         }
 
-        .errors {
-            background: var(--error-bg);
-            color: var(--error-text);
-            border: 1px solid #f8b5b5;
-        }
-
-        .errors ul {
-            margin: 8px 0 0;
-            padding-left: 20px;
-        }
-
-        .records {
-            display: grid;
-            gap: 12px;
-        }
-
-        .record {
+        .student-info {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: var(--card);
             border: 1px solid var(--line);
-            border-left: 5px solid var(--primary);
-            background: #fbfdff;
-            border-radius: 13px;
-            padding: 14px;
-        }
-
-        .record-top {
-            display: flex;
-            justify-content: space-between;
-            gap: 10px;
-            align-items: center;
-            margin-bottom: 8px;
-        }
-
-        .record-name {
-            margin: 0;
-            font-size: 17px;
-        }
-
-        .record-time {
-            color: var(--muted);
-            font-size: 12px;
-            white-space: nowrap;
-        }
-
-        .record p {
-            margin: 6px 0;
-            font-size: 14px;
-            color: #243754;
-        }
-
-        .empty {
-            border: 1px dashed #b7c7de;
             border-radius: 12px;
-            padding: 18px;
+            padding: 12px 16px;
+            box-shadow: var(--shadow);
+            font-size: 14px;
             color: var(--muted);
-            background: #f8fbff;
-            text-align: center;
         }
 
-        @media (min-width: 900px) {
-            .layout {
-                grid-template-columns: 1fr 1.2fr;
+        @media (max-width: 600px) {
+            .hero-title {
+                font-size: 36px;
+            }
+
+            .hero-subtitle {
+                font-size: 18px;
+            }
+
+            .auth-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .btn {
+                width: 100%;
+                max-width: 280px;
+            }
+
+            .student-info {
+                position: static;
+                margin-bottom: 20px;
+                text-align: center;
             }
         }
     </style>
 </head>
 <body>
-    <h1>i am changing this line
-    </h1>
-    <h1 class="page-title">Hammad Nasir FA22-BSE-097</h1>
-    <div class="layout">
-        <section class="card">
-            <div class="card-head">
-                <h1>Contact Form</h1>
-                <p>Yahan data fill karein. Submit ke baad data DB mein save hoga.</p>
-            </div>
-            <div class="card-body">
-                @if (session('success'))
-                    <div class="alert">{{ session('success') }}</div>
-                @endif
+    <div class="student-info">
+        Hammad Nasir - FA22-BSE-097
+    </div>
 
-                @if ($errors->any())
-                    <div class="errors">
-                        <strong>Validation error:</strong>
-                        <ul>
-                            @foreach ($errors->all() as $error)
-                                <li>{{ $error }}</li>
-                            @endforeach
-                        </ul>
-                    </div>
-                @endif
+    <div class="hero">
+        <h1 class="hero-title">Welcome to Our Platform</h1>
+        <p class="hero-subtitle">
+            Join us today and manage your data with our powerful CRUD system.
+            Create an account or login to access your dashboard.
+        </p>
 
-                <form method="POST" action="{{ url('/') }}">
-                    @csrf
-
-                    <div class="field">
-                        <label for="name">Name</label>
-                        <input id="name" name="name" type="text" value="{{ old('name') }}" placeholder="Apna naam likhein" required>
-                    </div>
-
-                    <div class="field">
-                        <label for="email">Email</label>
-                        <input id="email" name="email" type="email" value="{{ old('email') }}" placeholder="example@email.com" required>
-                    </div>
-
-                    <div class="field">
-                        <label for="message">Message</label>
-                        <textarea id="message" name="message" placeholder="Apna message likhein">{{ old('message') }}</textarea>
-                    </div>
-
-                    <button class="btn" type="submit">Save In Database</button>
-                </form>
-            </div>
-        </section>
-
-        <section class="card">
-            <div class="card-head">
-                <h2>Saved Records (DB Fetch)</h2>
-                <p>Yeh data direct database se fetch ho kar aa raha hai.</p>
-            </div>
-            <div class="card-body">
-                @if ($messages->isEmpty())
-                    <div class="empty">Abhi tak koi data save nahi hua.</div>
-                @else
-                    <div class="records">
-                        @foreach ($messages as $item)
-                            <article class="record">
-                                <div class="record-top">
-                                    <h3 class="record-name">{{ $item->name }}</h3>
-                                    <span class="record-time">{{ $item->created_at?->format('d M Y, h:i A') }}</span>
-                                </div>
-                                <p><strong>Email:</strong> {{ $item->email }}</p>
-                                <p><strong>Message:</strong> {{ $item->message ?: 'N/A' }}</p>
-                            </article>
-                        @endforeach
-                    </div>
-                @endif
-            </div>
-        </section>
+        <div class="auth-buttons">
+            <a href="{{ route('login') }}" class="btn btn-primary">Login</a>
+            <a href="{{ route('signup') }}" class="btn btn-secondary">Sign Up</a>
+        </div>
     </div>
 </body>
 </html>

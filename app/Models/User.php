@@ -46,4 +46,13 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+
+    /**
+     * Items that belong to the user.
+     */
+    public function items()
+    {
+        return $this->hasMany(Item::class, 'user_id');
+    }
 }
+
