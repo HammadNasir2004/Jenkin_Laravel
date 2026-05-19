@@ -250,6 +250,7 @@
 
         <main class="main-content">
             <header class="header">
+                <h1>hy devops</h1>
                 <h1 class="page-title">Welcome back, {{ auth()->user()->name }}!</h1>
                 <div class="user-info">
                     <span class="user-name">{{ auth()->user()->email }}</span>
