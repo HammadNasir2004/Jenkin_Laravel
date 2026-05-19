@@ -59,15 +59,19 @@ pipeline {
 
     post {
         success {
-            echo "Deployment successful! App running at http://YOUR_EC2_IP:30080"
+            echo "Deployment successful! App running at http://13.49.221.19:30080"
         }
         failure {
-            echo 'Pipeline failed!'
-            sh "kubectl rollout undo deployment/laravel -n ${K8S_NAMESPACE}"
+            node('') {
+                echo 'Pipeline failed!'
+                sh "kubectl rollout undo deployment/laravel -n laravel-app || true"
+            }
         }
         always {
-            sh "docker logout"
-            sh "docker rmi ${IMAGE_NAME}:${IMAGE_TAG} || true"
+            node('') {
+                sh "docker logout || true"
+                sh "docker rmi hammad1472/laravel-app:${env.BUILD_NUMBER} || true"
+            }
         }
     }
 }
