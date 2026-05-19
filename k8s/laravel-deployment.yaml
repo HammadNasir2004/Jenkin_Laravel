@@ -1,0 +1,68 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: laravel-config
+  namespace: laravel-app
+data:
+  APP_ENV: production
+  APP_DEBUG: "false"
+  DB_CONNECTION: mysql
+  DB_HOST: mysql
+  DB_PORT: "3306"
+  DB_DATABASE: laravel
+  DB_USERNAME: laravel
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: laravel-secret
+  namespace: laravel-app
+type: Opaque
+stringData:
+  APP_KEY: base64:b3BYtuZLYPV71azbo6JLPcDkygesmFiygq7mHL3tcjY=
+  DB_PASSWORD: laravelpassword
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: laravel
+  namespace: laravel-app
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: laravel
+  template:
+    metadata:
+      labels:
+        app: laravel
+    spec:
+      containers:
+        - name: laravel
+          image: hammad1472/laravel-app:latest
+          ports:
+            - containerPort: 9000
+          envFrom:
+            - configMapRef:
+                name: laravel-config
+            - secretRef:
+                name: laravel-secret
+          lifecycle:
+            postStart:
+              exec:
+                command:
+                  - /bin/sh
+                  - -c
+                  - php artisan migrate --force && php artisan config:cache && php artisan route:cache
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: laravel
+  namespace: laravel-app
+spec:
+  selector:
+    app: laravel
+  ports:
+    - port: 9000
+      targetPort: 9000

@@ -2,92 +2,72 @@ pipeline {
     agent any
 
     environment {
-        APP_DIR = '/var/www/laravel-app'
+        DOCKERHUB_CREDENTIALS = credentials('dockerhub-credentials')
+        DOCKERHUB_USERNAME    = 'hammad1472'
+        IMAGE_NAME            = "${DOCKERHUB_USERNAME}/laravel-app"
+        IMAGE_TAG             = "${BUILD_NUMBER}"
+        K8S_NAMESPACE         = 'laravel-app'
     }
 
     stages {
+
         stage('Checkout') {
             steps {
-                git branch: 'main',
-                    url: 'https://github.com/HammadNasir2004/Jenkin_Laravel.git'
+                echo 'Cloning repository...'
+                checkout scm
             }
         }
 
-        stage('Prepare App Directory') {
+        stage('Build Docker Image') {
             steps {
-                sh '''
-                    sudo mkdir -p $APP_DIR
-                    sudo chown -R jenkins:jenkins $APP_DIR
-                '''
+                echo 'Building Docker image...'
+                sh "docker build -t ${IMAGE_NAME}:${IMAGE_TAG} ."
+                sh "docker tag ${IMAGE_NAME}:${IMAGE_TAG} ${IMAGE_NAME}:latest"
             }
         }
 
-        stage('Copy Project Files') {
+        stage('Push to DockerHub') {
             steps {
-                sh '''
-                    rsync -av --delete \
-                    --exclude='.git' \
-                    --exclude='.env' \
-                    --exclude='vendor' \
-                    --exclude='node_modules' \
-                    ./ $APP_DIR/
-                '''
+                echo 'Pushing to DockerHub...'
+                sh "echo ${DOCKERHUB_CREDENTIALS_PSW} | docker login -u ${DOCKERHUB_CREDENTIALS_USR} --password-stdin"
+                sh "docker push ${IMAGE_NAME}:${IMAGE_TAG}"
+                sh "docker push ${IMAGE_NAME}:latest"
             }
         }
 
-        stage('Install Dependencies') {
+        stage('Deploy to Kubernetes') {
             steps {
-                sh '''
-                    cd $APP_DIR
-                    composer install --no-interaction --prefer-dist --optimize-autoloader --no-dev
-                '''
+                echo 'Deploying to Kubernetes...'
+                sh "kubectl apply -f k8s/namespace.yaml"
+                sh "kubectl apply -f k8s/mysql-deployment.yaml"
+                sh "kubectl apply -f k8s/laravel-deployment.yaml"
+                sh "kubectl apply -f k8s/nginx-deployment.yaml"
+                sh "kubectl set image deployment/laravel laravel=${IMAGE_NAME}:${IMAGE_TAG} -n ${K8S_NAMESPACE}"
+                sh "kubectl rollout status deployment/laravel -n ${K8S_NAMESPACE}"
+                sh "kubectl rollout status deployment/nginx -n ${K8S_NAMESPACE}"
             }
         }
 
-        stage('Build Frontend Assets') {
+        stage('Verify Deployment') {
             steps {
-                sh '''
-                    cd $APP_DIR
-                    if [ -f package.json ]; then
-                        npm install
-                        npm run build
-                    fi
-                '''
-            }
-        }
-
-        stage('Laravel Commands') {
-            steps {
-                sh '''
-                    cd $APP_DIR
-
-                    php artisan migrate --force
-                    php artisan config:cache
-                    php artisan route:cache
-                    php artisan view:cache
-
-                    sudo chown -R www-data:www-data storage bootstrap/cache
-                    sudo chmod -R 775 storage bootstrap/cache
-                '''
-            }
-        }
-
-        stage('Restart Services') {
-            steps {
-                sh '''
-                    sudo systemctl restart php8.3-fpm || sudo systemctl restart php8.2-fpm || true
-                    sudo systemctl restart nginx
-                '''
+                echo 'Verifying deployment...'
+                sh "kubectl get pods -n ${K8S_NAMESPACE}"
+                sh "kubectl get services -n ${K8S_NAMESPACE}"
             }
         }
     }
 
     post {
         success {
-            echo 'Laravel deployed successfully'
+            echo "Deployment successful! App running at http://YOUR_EC2_IP:30080"
         }
         failure {
-            echo 'Deployment failed'
+            echo 'Pipeline failed!'
+            sh "kubectl rollout undo deployment/laravel -n ${K8S_NAMESPACE}"
+        }
+        always {
+            sh "docker logout"
+            sh "docker rmi ${IMAGE_NAME}:${IMAGE_TAG} || true"
         }
     }
 }
