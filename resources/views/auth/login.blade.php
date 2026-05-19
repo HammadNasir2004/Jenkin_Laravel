@@ -145,7 +145,6 @@
 
         @if ($errors->any())
             <div class="errors">
-                <strong>Please fix the following errors:</strong>
                 <ul>
                     @foreach ($errors->all() as $error)
                         <li>{{ $error }}</li>

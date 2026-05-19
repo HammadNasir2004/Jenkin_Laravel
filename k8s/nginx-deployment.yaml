@@ -23,6 +23,10 @@ data:
             fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
             fastcgi_param PATH_INFO $fastcgi_path_info;
         }
+
+        location ~ /\.ht {
+            deny all;
+        }
     }
 ---
 apiVersion: apps/v1
@@ -40,6 +44,16 @@ spec:
       labels:
         app: nginx
     spec:
+      initContainers:
+        - name: copy-laravel-files
+          image: hammad1472/laravel-app:latest
+          command:
+            - sh
+            - -c
+            - cp -r /var/www/. /app/
+          volumeMounts:
+            - name: laravel-files
+              mountPath: /app
       containers:
         - name: nginx
           image: nginx:alpine
@@ -48,10 +62,14 @@ spec:
           volumeMounts:
             - name: nginx-config
               mountPath: /etc/nginx/conf.d
+            - name: laravel-files
+              mountPath: /var/www
       volumes:
         - name: nginx-config
           configMap:
             name: nginx-config
+        - name: laravel-files
+          emptyDir: {}
 ---
 apiVersion: v1
 kind: Service
