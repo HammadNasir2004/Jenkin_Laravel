@@ -18,6 +18,28 @@ pipeline {
             }
         }
 
+        stage('SonarQube Analysis') {
+            steps {
+                withSonarQubeEnv('sonarqube') {
+                    sh '''
+                        sonar-scanner \
+                        -Dsonar.projectKey=laravel-app \
+                        -Dsonar.projectName=Laravel-App \
+                        -Dsonar.sources=. \
+                        -Dsonar.host.url=http://51.21.111.181:9000
+                    '''
+                }
+            }
+        }
+
+        stage('Quality Gate') {
+            steps {
+                timeout(time: 2, unit: 'MINUTES') {
+                    waitForQualityGate abortPipeline: true
+                }
+            }
+        }
+
         stage('Build Docker Image') {
             steps {
                 echo 'Building Docker image...'
@@ -59,7 +81,7 @@ pipeline {
 
     post {
         success {
-            echo "Deployment successful! App running at http://13.49.221.19:30080"
+            echo "Deployment successful! App running at http://51.21.111.181:30080"
         }
         failure {
             node('') {
